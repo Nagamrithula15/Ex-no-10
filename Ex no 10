@@ -1,0 +1,182 @@
+//book shop//
+package bookshopapp;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+public class BookShopApp extends JFrame {
+    private ArrayList<Book> bookInventory;
+    private JTextField titleField, authorField, copiesField;
+    private JTextArea resultArea;
+
+    public BookShopApp() {
+        // Initialize book inventory (you can load this from a database or file)
+        bookInventory = new ArrayList();
+        bookInventory.add(new Book("John Doe", "Sample Book 1", 19.99, "Sample Publisher", 10));
+        bookInventory.add(new Book("Jane Smith", "Sample Book 2", 29.99, "Sample Publisher", 5));
+
+        // Set up the JFrame
+        setTitle("Hamen's Book Shop");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Create input fields and buttons
+        JPanel inputPanel = new JPanel(new GridLayout(4, 2));
+        inputPanel.add(new JLabel("Title:"));
+        titleField = new JTextField();
+        inputPanel.add(titleField);
+        inputPanel.add(new JLabel("Author:"));
+        authorField = new JTextField();
+        inputPanel.add(authorField);
+        inputPanel.add(new JLabel("Number of Copies:"));
+        copiesField = new JTextField();
+        inputPanel.add(copiesField);
+
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchBook();
+            }
+        });
+        inputPanel.add(searchButton);
+
+        // Create result area
+        resultArea = new JTextArea();
+        resultArea.setEditable(false);
+
+        // Add components to the JFrame
+        add(inputPanel, BorderLayout.NORTH);
+        add(new JScrollPane(resultArea), BorderLayout.CENTER);
+
+        setVisible(true);
+    }
+
+    private void searchBook() {
+        String title = titleField.getText();
+        String author = authorField.getText();
+        int requestedCopies = Integer.parseInt(copiesField.getText());
+
+        Book foundBook = null;
+        for (Book book : bookInventory) {
+            if (book.getTitle().equalsIgnoreCase(title) && book.getAuthor().equalsIgnoreCase(author)) {
+                foundBook = book;
+                break;
+            }
+        }
+
+        if (foundBook == null) {
+            resultArea.setText("Book not found.");
+        } else if (foundBook.getStockPosition() >= requestedCopies) {
+            double totalCost = foundBook.getPrice() * requestedCopies;
+            resultArea.setText("Book Details:\n" +
+                    "Title: " + foundBook.getTitle() + "\n" +
+                    "Author: " + foundBook.getAuthor() + "\n" +
+                    "Price: $" + foundBook.getPrice() + "\n" +
+                    "Publisher: " + foundBook.getPublisher() + "\n" +
+                    "In Stock: " + foundBook.getStockPosition() + " copies\n" +
+                    "Total Cost: $" + totalCost);
+        } else {
+            resultArea.setText("Required copies not in stock.");
+        }
+    }
+
+    public static void main(String[] args) {
+        swingUtilities.invokeLater(() -> new BookShopApp());
+    }
+}
+
+class Book {
+    private String author;
+    private String title;
+    private double price;
+    private String publisher;
+    private int stockPosition;
+
+    public Book(String author, String title, double price, String publisher, int stockPosition) {
+        this.author = author;
+        this.title = title;
+        this.price = price;
+        this.publisher = publisher;
+        this.stockPosition = stockPosition;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public int getStockPosition() {
+        return stockPosition;
+    }
+}
+//moving banner//
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class MovingBanner extends JFrame {
+    private BannerPanel bannerPanel;
+
+    public MovingBanner() {
+        setTitle("Moving Banner Example");
+        setSize(800, 100);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        bannerPanel = new BannerPanel();
+        add(bannerPanel);
+
+        Timer timer = new Timer(10, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bannerPanel.moveText(); // Update banner content position
+                bannerPanel.repaint(); // Redraw the panel
+            }
+        });
+        timer.start();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                MovingBanner movingBanner = new MovingBanner();
+                movingBanner.setVisible(true);
+            }
+        });
+    }
+
+    // Custom JPanel for drawing the banner content
+    class BannerPanel extends JPanel {
+        private String bannerText = "Moving Banner";
+        private int xPosition = 0;
+
+        public void moveText() {
+            xPosition += 1; // Adjust the position according to your desired speed
+            if (xPosition > getWidth()) {
+                xPosition = -100; // Reset when it goes out of the frame
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.setColor(Color.BLACK);
+            g.drawString(bannerText, xPosition, getHeight() / 2);
+        }
+    }
+}
